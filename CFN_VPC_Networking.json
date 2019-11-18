@@ -1,0 +1,484 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "AWS VPC Creation CFN Template two public subnets, two priavte subnets",
+    "Parameters": {
+        "VpcCidr": {
+            "Description": "Enter the CIDR Range for your VPC",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "Default": "10.0.0.0/16",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "PublicSubnet01": {
+            "Description": "Enter the CIDR Range for your Subnet",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "Default": "10.0.1.0/24",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "PublicSubnet02": {
+            "Description": "Enter the CIDR Range for your Subnet",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "Default": "10.0.2.0/24",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "PrivateSubnet01": {
+            "Description": "Enter the CIDR Range for your Subnet",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "Default": "10.0.3.0/24",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "PrivateSubnet02": {
+            "Description": "Enter the CIDR Range for your Subnet",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "Default": "10.0.4.0/24",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        }
+    },
+    "Resources": {
+        "MyVPC": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "CidrBlock": {
+                    "Ref": "VpcCidr"
+                },
+                "EnableDnsSupport": "true",
+                "EnableDnsHostnames": "true",
+                "InstanceTenancy": "default",
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "NetWorkVPC"
+                    },
+                    {
+                        "Key": "auto-delete",
+                        "Value": "no"
+                    }
+                ]
+            }
+        },
+        "MyPublicRouteTable01": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "MyVPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "PublicRouteTable01"
+                    },
+                    {
+                        "Key": "auto-delete",
+                        "Value": "no"
+                    }
+                ]
+            }
+        },
+        "MyPublicRouteTable02": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "MyVPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "PublicRouteTable02"
+                    },
+                    {
+                        "Key": "auto-delete",
+                        "Value": "no"
+                    }
+                ]
+            }
+        },
+        "MyPrivateRouteTable01": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "MyVPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "PrivateRouteTable01"
+                    },
+                    {
+                        "Key": "auto-delete",
+                        "Value": "no"
+                    }
+                ]
+            }
+        },
+        "MyPrivateRouteTable02": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "MyVPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "PrivateRouteTable02"
+                    },
+                    {
+                        "Key": "auto-delete",
+                        "Value": "no"
+                    }
+                ]
+            }
+        },
+        "MyInternetGateway": {
+            "Type": "AWS::EC2::InternetGateway",
+            "Properties": {
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "InternetGateway"
+                    },
+                    {
+                        "Key": "auto-delete",
+                        "Value": "no"
+                    }
+                ]
+            }
+        },
+        "MyVPCAttachInternetGateway": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "InternetGatewayId": {
+                    "Ref": "MyInternetGateway"
+                },
+                "VpcId": {
+                    "Ref": "MyVPC"
+                }
+            }
+        },
+        "MyPublicSubnet01": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "CidrBlock": {
+                    "Ref": "PublicSubnet01"
+                },
+                "MapPublicIpOnLaunch": "true",
+                "VpcId": {
+                    "Ref": "MyVPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "PublicSubnet01"
+                    },
+                    {
+                        "Key": "auto-delete",
+                        "Value": "no"
+                    }
+                ]
+            }
+        },
+        "MyPublicSubnet02": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "CidrBlock": {
+                    "Ref": "PublicSubnet02"
+                },
+                "MapPublicIpOnLaunch": "true",
+                "VpcId": {
+                    "Ref": "MyVPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "PublicSubnet02"
+                    },
+                    {
+                        "Key": "auto-delete",
+                        "Value": "no"
+                    }
+                ]
+            }
+        },
+        "MyPrivateSubnet01": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "CidrBlock": {
+                    "Ref": "PrivateSubnet01"
+                },
+                "MapPublicIpOnLaunch": "false",
+                "VpcId": {
+                    "Ref": "MyVPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "PrivateSubnet01"
+                    },
+                    {
+                        "Key": "auto-delete",
+                        "Value": "no"
+                    }
+                ]
+            }
+        },
+        "MyPrivateSubnet02": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "CidrBlock": {
+                    "Ref": "PrivateSubnet02"
+                },
+                "MapPublicIpOnLaunch": "false",
+                "VpcId": {
+                    "Ref": "MyVPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "PrivateSubnet02"
+                    },
+                    {
+                        "Key": "auto-delete",
+                        "Value": "no"
+                    }
+                ]
+            }
+        },
+        "MyEIP": {
+            "Type": "AWS::EC2::EIP",
+            "Properties": {
+                "Domain": {
+                    "Ref": "MyVPC"
+                }
+            }
+        },
+        "MyNATGateway": {
+            "Type": "AWS::EC2::NatGateway",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "MyPublicSubnet01"
+                },
+                "AllocationId": {
+                    "Fn::GetAtt": [
+                        "MyEIP",
+                        "AllocationId"
+                    ]
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "NatGateway"
+                    },
+                    {
+                        "Key": "auto-delete",
+                        "Value": "no"
+                    }
+                ]
+            }
+        },
+        "MyPublicRouteTableRoutes01": {
+            "DependsOn": [
+                "MyPublicRouteTable01",
+                "MyInternetGateway"
+            ],
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "MyPublicRouteTable01"
+                },
+                "GatewayId": {
+                    "Ref": "MyInternetGateway"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0"
+            }
+        },
+        "MyPublicRouteTableRoutes02": {
+            "DependsOn": [
+                "MyPublicRouteTable02",
+                "MyInternetGateway"
+            ],
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "MyPublicRouteTable02"
+                },
+                "GatewayId": {
+                    "Ref": "MyInternetGateway"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0"
+            }
+        },
+        "MyPrivateRouteTableRoutes01": {
+            "DependsOn": [
+                "MyPrivateRouteTable01",
+                "MyInternetGateway"
+            ],
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "MyPrivateRouteTable01"
+                },
+                "NatGatewayId": {
+                    "Ref": "MyNATGateway"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0"
+            }
+        },
+        "MyPrivateRouteTableRoutes02": {
+            "DependsOn": [
+                "MyPrivateRouteTable02",
+                "MyInternetGateway"
+            ],
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "MyPrivateRouteTable02"
+                },
+                "NatGatewayId": {
+                    "Ref": "MyNATGateway"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0"
+            }
+        },
+        "MyPublicSubnetAssociation01": {
+            "DependsOn": [
+                "MyPublicSubnet01",
+                "MyPublicRouteTable01"
+            ],
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "MyPublicRouteTable01"
+                },
+                "SubnetId": {
+                    "Ref": "MyPublicSubnet01"
+                }
+            }
+        },
+        "MyPublicSubnetAssociation2": {
+            "DependsOn": [
+                "MyPublicSubnet02",
+                "MyPublicRouteTable02"
+            ],
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "MyPublicRouteTable02"
+                },
+                "SubnetId": {
+                    "Ref": "MyPublicSubnet02"
+                }
+            }
+        },
+        "MyPrivateSubnetAssociation01": {
+            "DependsOn": [
+                "MyPrivateSubnet01",
+                "MyPrivateRouteTable01"
+            ],
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "MyPrivateRouteTable01"
+                },
+                "SubnetId": {
+                    "Ref": "MyPrivateSubnet01"
+                }
+            }
+        },
+        "MyPrivateSubnetAssociation02": {
+            "DependsOn": [
+                "MyPrivateSubnet02",
+                "MyPrivateRouteTable02"
+            ],
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "MyPrivateRouteTable02"
+                },
+                "SubnetId": {
+                    "Ref": "MyPrivateSubnet02"
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "NetwrokStackID": {
+            "Value": {
+                "Ref": "AWS::StackId"
+            },
+            "Export": {
+                "Name": "MyVpcStackARN"
+            }
+        },
+        "VpcId": {
+            "Value": {
+                "Ref": "MyVPC"
+            },
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}-VPCID"
+                }
+            }
+        },
+        "PublicSubnetId1": {
+            "Value": {
+                "Ref": "MyPublicSubnet01"
+            },
+            "Export": {
+                "Name": "PublicSubentId-1"
+            }
+        },
+        "PublicSubnetId2": {
+            "Value": {
+                "Ref": "MyPublicSubnet02"
+            },
+            "Export": {
+                "Name": "PublicSubentId-2"
+            }
+        },
+        "PrivateSubnetId1": {
+            "Value": {
+                "Ref": "MyPrivateSubnet01"
+            },
+            "Export": {
+                "Name": "PrivateSubentId-1"
+            }
+        },
+        "PrivateSubnetId2": {
+            "Value": {
+                "Ref": "MyPrivateSubnet02"
+            },
+            "Export": {
+                "Name": "PrivateSubentId-2"
+            }
+        },
+        "EIP": {
+            "Value": {
+                "Ref": "MyEIP"
+            },
+            "Export": {
+                "Name": "NatGatewayIP"
+            }
+        },
+        "NatGatway": {
+            "Value": {
+                "Ref": "MyNATGateway"
+            },
+            "Export": {
+                "Name": "NatGatwayInstanceId"
+            }
+        }
+    }
+}
